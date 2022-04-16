@@ -42,6 +42,10 @@ In the folder you configured for download in Chrome, you need to create the foll
 - DOWNLOADED
 - PROCESSED
 
+### 7 Change the 3 TODOs that define how the page is made
+Locate 3 todos in the code that configure strings. These strings define how the page is structured: The url of the page with documents, 
+the button (if any) to load more documents, and the subelement on the page that contains the list of the documents. 
+
 ### Last step
 In the instance of Chrome that you launched, login and run the main class of this project.
 Remember that the documents will appear with names in the language that is displayed. To change the language, change the 
