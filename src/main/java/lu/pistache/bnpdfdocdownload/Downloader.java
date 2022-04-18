@@ -23,7 +23,7 @@ public class Downloader implements Runnable {
     public static final int MAX_NUMBER_OF_CLICKS_ON_MORE_DOCS = 100; //should be big for real usage, e.g. 100
     //TODO: put in here the link to the documents page
     public static final String PAGE_DOCUMENTS_LIST = "";
-    //TODO: put here the subpath to a "more" button, if existing. Something like "'/.../..../GiveMeMoreButton'"
+    //TODO: put here the subpath to a "more" button, if existing. Something like "'/.../..../GiveMeMoreButton'" or "//form..."
     public static final String DOCUMENTS_MORE = "";
     //TODO: put here the subpath to the "display" part where the documents are stored. Something like "'/.../TheDisplayField'"
     public static final String DOCUMENTS_DISPLAY = "";
@@ -61,18 +61,20 @@ public class Downloader implements Runnable {
         driver.get(PAGE_DOCUMENTS_LIST);
         //click on More Documents as long as the button is present in order to load all documents on the screen
         //todo: stop this process when you reach a configurable date
-        try {
-            for (int i = 1; i != MAX_NUMBER_OF_CLICKS_ON_MORE_DOCS; i++) {
-                WebElement moreDocsForm = driver.findElement(By.xpath("//form[@action=" + DOCUMENTS_MORE + "]"));
-                logger.info("Clicking on button for loading more documents");
-                moreDocsForm.submit();
+        if (!DOCUMENTS_MORE.equals("")) {
+            try {
+                for (int i = 1; i != MAX_NUMBER_OF_CLICKS_ON_MORE_DOCS; i++) {
+                    WebElement moreDocsForm = driver.findElement(By.xpath(DOCUMENTS_MORE));
+                    logger.info("Clicking on button for loading more documents");
+                    moreDocsForm.submit();
+                }
+            } catch (Exception e) {
+                //Exception is expected at least when there's no button. Do nothing.
             }
-        } catch (Exception e) {
-            //Exception is expected at least when there's no button. Do nothing.
         }
 
         //Get a list of all document elements that can be displayed. Loop on all of them
-        List<WebElement> displayForm = driver.findElements(By.xpath("//form[@action=" + DOCUMENTS_DISPLAY + "]"));
+        List<WebElement> displayForm = driver.findElements(By.xpath(DOCUMENTS_DISPLAY));
         if (displayForm.isEmpty()) {
             logger.error("No documents found. Are you even logged in?");
         } else {
@@ -81,7 +83,7 @@ public class Downloader implements Runnable {
                     Date dateFromDocumentLink = getDateFromDocumentLink(displayElement.getText());
                     if (dateFromDocumentLink.after(fromDate) && dateFromDocumentLink.before(toDate)) {
                         logger.debug("Downloading document with date: " + dateFromDocumentLink);
-                        if (!displayElement.getText().equals("FUSIONNER")) {
+                        if (!displayElement.getText().startsWith("FUSION")) {
                             File[] downloadedFiles = getDownloadedPdfFiles();
                             if (downloadedFiles.length > 0) {
                                 throw new RuntimeException("Download folder not empty. Are you running in multithread? This is not supported");
